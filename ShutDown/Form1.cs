@@ -14,29 +14,32 @@ namespace ShutDownPC
     public partial class Form1 : Form
     {
         private const string file_name = "timer.cfg";
-        private int time_left = 5;  // Default value for creating the .cfg file.
+        private int time_left = 7;  // Default value for creating the .cfg file.
         private Timer timer;
         public Form1()
         {
             timer = new Timer();
             timer.Tick += new EventHandler(TimerTick);
             timer.Interval = 1000;
-            timer.Start();
 
-            if(!System.IO.File.Exists(file_name))
+            if (!System.IO.File.Exists(file_name))  // If we don't want to have a config file, simply leave this if clause blank and the application will use the default value.
             {
                 System.IO.File.WriteAllText(file_name, time_left.ToString());
-                MessageBox.Show(String.Format("File {0} not found. Created the file with a default setting of {1} seconds", file_name, time_left));
             }
-            try
+            else
             {
-                string time = System.IO.File.ReadAllText(file_name);
-                time_left = Int32.Parse(time);
+                try
+                {
+                    string time = System.IO.File.ReadAllText(file_name);
+                    time_left = Int32.Parse(time);
+                }
+                catch
+                {
+                    MessageBox.Show(String.Format("The file '{0}' is not properly formatted. Falling back to default value of {1} seconds. Countdown starts when this window is closed.", file_name, time_left));
+                }
             }
-            catch
-            {
-                MessageBox.Show(String.Format("The file {0} is not properly formatted. Make sure it only includes a number in seconds until shutdown", file_name));
-            }
+
+            timer.Start();
 
             InitializeComponent();
 
